@@ -5,7 +5,9 @@ import numpy as np
 import os
 import PIL.Image
 import csv
+from datetime import datetime
 
+start = datetime.now()
 mpl.rcParams['figure.figsize'] = (10, 10)
 mpl.rcParams['axes.grid'] = False
 
@@ -13,25 +15,26 @@ mpl.rcParams['axes.grid'] = False
 '''
 Defining Model and Image Paths
 '''
-print("Finding image and model roots...")
-root_dir = 'D:/Users/micha/PycharmProjects/NST_Lite/'
+print("Finding images and model roots...")
+# root_dir = 'C:/Users/micha/Documents/PycharmProjects/NST_Lite/'
+root_dir = os.getcwd()
 # Defining Model DIR
 models_versions = ['inceptionv3-fp16', 'inceptionv3-int8', 'magenta']
 
-predict_models = {'inceptionv3-int8': root_dir + 'models/inceptionv3_int8_predict.tflite',
-                  'inceptionv3-fp16': root_dir + 'models/inceptionv3_fp16_predict.tflite',
+predict_models = {'inceptionv3-int8': root_dir + '\\models\\inceptionv3_int8_predict.tflite',
+                  'inceptionv3-fp16': root_dir + '\\models\\inceptionv3_fp16_predict.tflite',
                   'magenta': 'models/magenta_prediction.tflite'}
-transform_models = {'inceptionv3-int8': root_dir + 'models/inceptionv3_int8_transfer.tflite',
-                    'inceptionv3-fp16': root_dir + 'models/inceptionv3_fp16_transfer.tflite',
-                    'magenta': root_dir + 'models/magenta_transfer.tflite'}
+transform_models = {'inceptionv3-int8': root_dir + '\\models\\inceptionv3_int8_transfer.tflite',
+                    'inceptionv3-fp16': root_dir + '\\models\\inceptionv3_fp16_transfer.tflite',
+                    'magenta': root_dir + '\\models\\magenta_transfer.tflite'}
 
 style_predict_path = predict_models[models_versions[0]]
 style_transform_path = transform_models[models_versions[0]]
 
 # Iterates through all content and style images and adding to dict
-content_dir = root_dir + 'images/content/'
-style_dir = root_dir + 'images/styles/'
-generated_dir = root_dir + 'images/generated/'
+content_dir = root_dir + '\\images\\content\\'
+style_dir = root_dir + '\\images\\styles\\'
+generated_dir = root_dir + '\\images\\generated\\'
 
 content_paths = {}
 style_paths = {}
@@ -186,10 +189,10 @@ def save_results(final_image, content_to_use, style_to_use, blended=False):
     print("Saving Results...")
     if blended:
         file_name = '{}-{}-blended.jpg'.format(content_to_use, style_to_use)
-        tensor_to_image(final_image).save(generated_dir + '/blended/' + file_name)
+        tensor_to_image(final_image).save(generated_dir + '\\blended\\' + file_name)
     else:
         file_name = '{}-{}-lite.jpg'.format(content_to_use, style_to_use)
-        tensor_to_image(final_image).save(generated_dir + '/lite/' + file_name)
+        tensor_to_image(final_image).save(generated_dir + '\\lite\\' + file_name)
 
 
 def generate(content, style, csv=False, blended=False):
@@ -223,13 +226,23 @@ def generate(content, style, csv=False, blended=False):
         stylized_image = run_style_transform(style_bottleneck, preprocessed_content_image)
         save_results(stylized_image, content_to_use, style_to_use)
 
+    stylized_image = tensor_to_image(stylized_image)
+    saved_path = generated_dir + '\\lite\\' + '{}-{}-lite.jpg'.format(content_to_use, style_to_use)
+    return saved_path, stylized_image
+
 
 # Iterates through all style and content images, generating transferred styles for all
-for style in style_paths.keys():
-    for content in content_paths.keys():
-        generate(content, style, csv=True, blended=False)
-        generate(content, style, csv=False, blended=True)
+def nst_all():
+    for style in style_paths.keys():
+        for content in content_paths.keys():
+            generate(content, style, csv=False, blended=True)
 
+
+# Just use style and content in the csv file
+def nst_csv():
+    gen_path, image = generate(content=0, style=0, csv=True, blended=False)
+    print("Finished Process In ", datetime.now() - start)
+    return gen_path, image
 
 
 
