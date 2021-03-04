@@ -18,18 +18,10 @@ Defining Model and Image Paths
 print("Finding images and model roots...")
 # root_dir = 'C:/Users/micha/Documents/PycharmProjects/NST_Lite/'
 root_dir = os.getcwd()
+
 # Defining Model DIR
-models_versions = ['inceptionv3-fp16', 'inceptionv3-int8', 'magenta']
-
-predict_models = {'inceptionv3-int8': root_dir + '\\models\\inceptionv3_int8_predict.tflite',
-                  'inceptionv3-fp16': root_dir + '\\models\\inceptionv3_fp16_predict.tflite',
-                  'magenta': 'models/magenta_prediction.tflite'}
-transform_models = {'inceptionv3-int8': root_dir + '\\models\\inceptionv3_int8_transfer.tflite',
-                    'inceptionv3-fp16': root_dir + '\\models\\inceptionv3_fp16_transfer.tflite',
-                    'magenta': root_dir + '\\models\\magenta_transfer.tflite'}
-
-style_predict_path = predict_models[models_versions[0]]
-style_transform_path = transform_models[models_versions[0]]
+style_predict_path = root_dir + '\\models\\inceptionv3_fp16_predict.tflite'
+style_transform_path = root_dir + '\\models\\inceptionv3_fp16_transfer.tflite'
 
 # Iterates through all content and style images and adding to dict
 content_dir = root_dir + '\\images\\content\\'
