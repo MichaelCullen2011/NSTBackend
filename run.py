@@ -12,6 +12,7 @@ ALLOWED_EXTENSIONS = {'jpg'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['FLUTTER_JSON'] = {}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024     # 16 MB file size limit
 
 
@@ -54,8 +55,8 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
-@app.route('/run/<filename>')
-def run_nst(filename):
+@app.route('/run/<content>-<style>')
+def run_nst(content, style):
     b = BytesIO()
     data = {}
 
@@ -64,8 +65,18 @@ def run_nst(filename):
     b.seek(0)
 
     data['image'] = base64.b64encode(b.read()).decode('ascii')
-    data['url'] = '/uploads/' + filename
+    data['url'] = '/uploads/' + '{}-{}'.format(content, style)
     return json.dumps(data)
+
+
+@app.route('/app/<content>-<style>', methods=['POST', 'GET'])
+def edit_csv(content, style):
+    if request.method == 'POST':
+        return redirect(url_for('run_nst', content=content, style=style))
+    elif request.method == 'GET':
+        return redirect(url_for('uploaded_file', content=content, style=style))
+
+    return app.config['FLUTTER_JSON']
 
 
 if __name__ == '__main__':

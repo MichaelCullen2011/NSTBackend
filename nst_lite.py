@@ -190,7 +190,7 @@ def save_results(final_image, content_to_use, style_to_use, blended=False):
 def generate(content, style, csv=False, blended=False):
     # Chooses an image from our content and style dict
     if csv:
-        content_to_use, style_to_use = read_csv('images_to_use')
+        content_to_use, style_to_use = read_csv('images_to_use.txt')
     else:
         content_to_use, style_to_use = content, style
 
