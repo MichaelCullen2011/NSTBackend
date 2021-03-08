@@ -2,7 +2,7 @@ import os
 import base64
 import json
 from io import BytesIO
-from flask import Flask, flash, request, redirect, url_for, send_from_directory
+from flask import Flask, flash, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import nst_lite as NST
 
@@ -57,32 +57,45 @@ def upload_file():
 
 @app.route('/uploaded/<filename>')
 def uploaded_file(filename):
+    os.listdir('images/generated/lite')
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
-@app.route('/run/<content>-<style>')
-def run_nst(content, style):
-    b = BytesIO()
-    data = {}
-
-    data['path'], image = NST.nst_csv()
-    image.save(b, format="jpeg")
-    b.seek(0)
-
-    data['image'] = base64.b64encode(b.read()).decode('ascii')
-    data['url'] = '/uploads/' + '{}-{}'.format(content, style)
-    return json.dumps(data)
-
-
-@app.route('/app/<content>-<style>', methods=['POST', 'GET'])
-def edit_csv(content, style):
+@app.route('/nst',  methods=['POST', 'GET'])
+def nst():
     if request.method == 'POST':
-        return redirect(url_for('run_nst', content=content, style=style))
-    elif request.method == 'GET':
-        return redirect(url_for('uploaded_file', content=content, style=style))
+        content = request.json.get('content')
+        style = request.json.get('style')
+        data = {}
+        filename = content + '-' + style + '.jpg'
 
-    return app.config['FLUTTER_JSON']
+        if not check_exists(filename):
+            data['path'], image = NST.nst_csv(content, style)
+            data['url'] = 'http://192.168.0.14:5000/uploaded/' + '{}-{}.jpg'.format(content, style)
+            print(os.listdir('images/generated/lite'))
+            return jsonify(data)
+        else:
+            data['path'] = os.getcwd() + '\\images\\generated\\lite\\' + '{}-{}.jpg'.format(content, style)
+            data['url'] = 'http://192.168.0.14:5000/uploaded/' + '{}-{}.jpg'.format(content, style)
+            return jsonify(data)
+
+    elif request.method == 'GET':
+        content = request.json.get('content')
+        style = request.json.get('style')
+        filename = content + '-' + style + '.jpg'
+        if check_exists(filename):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        else:
+            return 'No file to get'
+
+
+def check_exists(filename):
+    for item in os.listdir('images/generated/lite'):
+        if item == filename:
+            return True
+        else:
+            return False
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')

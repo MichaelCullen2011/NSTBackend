@@ -43,6 +43,8 @@ for content_name in os.listdir(style_dir):
     else:
         continue
 
+print(style_paths)
+
 
 def read_csv(file):
     print("Reading content and style images to use in model...")
@@ -180,11 +182,13 @@ def tensor_to_image(tensor):
 def save_results(final_image, content_to_use, style_to_use, blended=False):
     print("Saving Results...")
     if blended:
-        file_name = '{}-{}-blended.jpg'.format(content_to_use, style_to_use)
+        file_name = '{}-{}.jpg'.format(content_to_use, style_to_use)
         tensor_to_image(final_image).save(generated_dir + '\\blended\\' + file_name)
+        tensor_to_image(final_image).close()
     else:
-        file_name = '{}-{}-lite.jpg'.format(content_to_use, style_to_use)
+        file_name = '{}-{}.jpg'.format(content_to_use, style_to_use)
         tensor_to_image(final_image).save(generated_dir + '\\lite\\' + file_name)
+        tensor_to_image(final_image).close()
 
 
 def generate(content, style, csv=False, blended=False):
@@ -194,7 +198,9 @@ def generate(content, style, csv=False, blended=False):
     else:
         content_to_use, style_to_use = content, style
 
-    print("Transferring Style: ", style, "to content: ", content)
+    content_to_use = content
+    style_to_use = style
+    print("Transferring Style: ", style_to_use, "to content: ", content_to_use)
     content_path = content_paths[content_to_use]
     style_path = style_paths[style_to_use]
 
@@ -219,7 +225,7 @@ def generate(content, style, csv=False, blended=False):
         save_results(stylized_image, content_to_use, style_to_use)
 
     stylized_image = tensor_to_image(stylized_image)
-    saved_path = generated_dir + '\\lite\\' + '{}-{}-lite.jpg'.format(content_to_use, style_to_use)
+    saved_path = generated_dir + '\\lite\\' + '{}-{}.jpg'.format(content_to_use, style_to_use)
     return saved_path, stylized_image
 
 
@@ -231,8 +237,8 @@ def nst_all():
 
 
 # Just use style and content in the csv file
-def nst_csv():
-    gen_path, image = generate(content=0, style=0, csv=True, blended=False)
+def nst_csv(content, style):
+    gen_path, image = generate(content=content, style=style, csv=True, blended=False)
     print("Finished Process In ", datetime.now() - start)
     return gen_path, image
 
