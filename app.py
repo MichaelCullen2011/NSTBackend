@@ -1,7 +1,4 @@
 import os
-import base64
-import json
-from io import BytesIO
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import nst_lite as NST
@@ -98,4 +95,4 @@ def check_exists(filename):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run()
