@@ -68,12 +68,13 @@ def nst():
 
         if not check_exists(filename):
             data['path'], image = NST.nst_csv(content, style)
-            data['url'] = 'http://192.168.0.14:5000/uploaded/' + '{}-{}.jpg'.format(content, style)
-            print(os.listdir('images/generated/lite'))
+            data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
+            print(data)
             return jsonify(data)
         else:
             data['path'] = os.getcwd() + '/images/generated/lite/' + '{}-{}.jpg'.format(content, style)
-            data['url'] = 'http://192.168.0.14:5000/uploaded/' + '{}-{}.jpg'.format(content, style)
+            data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
+            print(data)
             return jsonify(data)
 
     elif request.method == 'GET':
