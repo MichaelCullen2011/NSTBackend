@@ -20,13 +20,13 @@ print("Finding images and model roots...")
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
 
 # Defining Model DIR
-style_predict_path = root_dir + '\\models\\inceptionv3_fp16_predict.tflite'
-style_transform_path = root_dir + '\\models\\inceptionv3_fp16_transfer.tflite'
+style_predict_path = root_dir + '/models/inceptionv3_fp16_predict.tflite'
+style_transform_path = root_dir + '/models/inceptionv3_fp16_transfer.tflite'
 
 # Iterates through all content and style images and adding to dict
-content_dir = root_dir + '\\images\\content\\'
-style_dir = root_dir + '\\images\\styles\\'
-generated_dir = root_dir + '\\images\\generated\\'
+content_dir = root_dir + '/images/content/'
+style_dir = root_dir + '/images/styles/'
+generated_dir = root_dir + '/images/generated/'
 
 content_paths = {}
 style_paths = {}
@@ -183,11 +183,11 @@ def save_results(final_image, content_to_use, style_to_use, blended=False):
     print("Saving Results...")
     if blended:
         file_name = '{}-{}.jpg'.format(content_to_use, style_to_use)
-        tensor_to_image(final_image).save(generated_dir + '\\blended\\' + file_name)
+        tensor_to_image(final_image).save(generated_dir + '/blended/' + file_name)
         tensor_to_image(final_image).close()
     else:
         file_name = '{}-{}.jpg'.format(content_to_use, style_to_use)
-        tensor_to_image(final_image).save(generated_dir + '\\lite\\' + file_name)
+        tensor_to_image(final_image).save(generated_dir + '/lite/' + file_name)
         tensor_to_image(final_image).close()
 
 
@@ -225,7 +225,7 @@ def generate(content, style, csv=False, blended=False):
         save_results(stylized_image, content_to_use, style_to_use)
 
     stylized_image = tensor_to_image(stylized_image)
-    saved_path = generated_dir + '\\lite\\' + '{}-{}.jpg'.format(content_to_use, style_to_use)
+    saved_path = generated_dir + '/lite/' + '{}-{}.jpg'.format(content_to_use, style_to_use)
     return saved_path, stylized_image
 
 

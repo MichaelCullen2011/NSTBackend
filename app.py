@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import nst_lite as NST
 
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
-UPLOAD_FOLDER = root_dir + '\\images\\generated\\lite\\'
+UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
 ALLOWED_EXTENSIONS = {'jpg'}
 
 app = Flask(__name__)
@@ -72,7 +72,7 @@ def nst():
             print(os.listdir('images/generated/lite'))
             return jsonify(data)
         else:
-            data['path'] = os.getcwd() + '\\images\\generated\\lite\\' + '{}-{}.jpg'.format(content, style)
+            data['path'] = os.getcwd() + '/images/generated/lite/' + '{}-{}.jpg'.format(content, style)
             data['url'] = 'http://192.168.0.14:5000/uploaded/' + '{}-{}.jpg'.format(content, style)
             return jsonify(data)
 
