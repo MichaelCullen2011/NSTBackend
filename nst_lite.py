@@ -32,7 +32,7 @@ content_paths = {}
 style_paths = {}
 
 for content_name in os.listdir(content_dir):
-    if content_name.endswith(".jpg") or content_name.endswith(".png"):
+    if content_name.endswith(".jpg"):
         content_paths[content_name[:-4]] = content_dir + content_name
     else:
         continue

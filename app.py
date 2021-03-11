@@ -1,21 +1,21 @@
 import os
+from PIL import Image
+import numpy as np
+import io
+import base64
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import nst_lite as NST
 
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
-UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
+UPLOAD_FOLDER = root_dir + '/images/content/'
 ALLOWED_EXTENSIONS = {'jpg'}
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['FLUTTER_JSON'] = {}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024     # 16 MB file size limit
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/')
@@ -23,33 +23,20 @@ def home():
     return 'Hello'
 
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
         file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
+        if file:
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file', filename=filename))
-
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+            exists = check_exists(filename)
+            if not exists:
+                print("UPLOAD FILENAME", filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                return "SAVED"
+            else:
+                print("Image Exists")
+                return "EXISTS"
 
 
 @app.route('/uploaded/<filename>')
@@ -66,7 +53,7 @@ def nst():
         data = {}
         filename = content + '-' + style + '.jpg'
 
-        if not check_exists(filename):
+        if not check_generated(filename):
             data['path'], image = NST.nst_csv(content, style)
             data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
             print(data)
@@ -81,19 +68,42 @@ def nst():
         content = request.json.get('content')
         style = request.json.get('style')
         filename = content + '-' + style + '.jpg'
-        if check_exists(filename):
+        if check_generated(filename):
             return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
         else:
             return 'No file to get'
 
 
-def check_exists(filename):
+def check_generated(filename):
+    print(filename)
     for item in os.listdir('images/generated/lite'):
         if item == filename:
             return True
-        else:
-            return False
+    else:
+        return False
+
+
+def check_exists(filename):
+    print("CHECK EXISTS ", filename)
+    for item in os.listdir('images/content'):
+        if item == filename:
+            print("EXISTS")
+            return True
+    else:
+        print("DOESNT EXIST")
+        return False
+
+
+def convert_to_image():
+    file = request.files['image'].read()  # byte file
+    npimg = np.fromstring(file, np.uint8)
+    img = Image.fromarray(npimg)
+    raw_bytes = io.BytesIO()
+    img.save(raw_bytes, "JPEG")
+    raw_bytes.seek(0)
+    img_base64 = base64.b64encode(raw_bytes.read())
+    return jsonify({'status': str(img_base64)})
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
