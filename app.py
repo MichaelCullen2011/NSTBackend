@@ -41,7 +41,7 @@ def upload_file():
 
 @app.route('/uploaded/<filename>')
 def uploaded_file(filename):
-    os.listdir('images/generated/lite')
+    os.listdir(root_dir + 'images/generated/lite')
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
@@ -76,7 +76,7 @@ def nst():
 
 def check_generated(filename):
     print(filename)
-    for item in os.listdir('images/generated/lite'):
+    for item in os.listdir(root_dir + 'images/generated/lite'):
         if item == filename:
             return True
     else:
@@ -85,7 +85,7 @@ def check_generated(filename):
 
 def check_exists(filename):
     print("CHECK EXISTS ", filename)
-    for item in os.listdir('images/content'):
+    for item in os.listdir(root_dir + 'images/content'):
         if item == filename:
             print("EXISTS")
             return True
