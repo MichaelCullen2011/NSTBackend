@@ -8,12 +8,14 @@ from werkzeug.utils import secure_filename
 import nst_lite as NST
 
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
-UPLOAD_FOLDER = root_dir + '/images/content/'
+UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
+CONTENT_FOLDER = root_dir + '/images/content/'
 ALLOWED_EXTENSIONS = {'jpg'}
 
 app = Flask(__name__)
 # app.config['SECRET_KEY'] = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['CONTENT_FOLDER'] = CONTENT_FOLDER
 app.config['FLUTTER_JSON'] = {}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024     # 16 MB file size limit
 
@@ -32,17 +34,18 @@ def upload_file():
             exists = check_exists(filename)
             if not exists:
                 print("UPLOAD FILENAME", filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(app.config['CONTENT_FOLDER'], filename))
                 return "SAVED"
             else:
                 print("Image Exists")
                 return "EXISTS"
 
 
-@app.route('/uploaded/<filename>')
+@app.route('/uploaded/<filename>', methods=['POST', 'GET'])
 def uploaded_file(filename):
-    os.listdir(root_dir + '/images/generated/lite')
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    if request.method == 'GET':
+        os.listdir(app.config['UPLOAD_FOLDER'])
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/nst',  methods=['POST', 'GET'])
@@ -59,7 +62,7 @@ def nst():
             print(data)
             return jsonify(data)
         else:
-            data['path'] = os.getcwd() + '/images/generated/lite/' + '{}-{}.jpg'.format(content, style)
+            data['path'] = app.config['UPLOAD_FOLDER'] + '{}-{}.jpg'.format(content, style)
             data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
             print(data)
             return jsonify(data)
@@ -75,8 +78,8 @@ def nst():
 
 
 def check_generated(filename):
-    print(filename)
-    for item in os.listdir(root_dir + '/images/generated/lite'):
+    print("CHECK GENERATED", filename)
+    for item in os.listdir(app.config['UPLOAD_FOLDER']):
         if item == filename:
             return True
     else:
@@ -85,7 +88,7 @@ def check_generated(filename):
 
 def check_exists(filename):
     print("CHECK EXISTS ", filename)
-    for item in os.listdir(root_dir + '/images/content'):
+    for item in os.listdir(app.config['CONTENT_FOLDER']):
         if item == filename:
             print("EXISTS")
             return True
