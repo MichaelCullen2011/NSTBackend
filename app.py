@@ -3,6 +3,7 @@ from PIL import Image
 import numpy as np
 import io
 import base64
+import json
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import nst_lite as NST
@@ -51,8 +52,21 @@ def uploaded_file(filename):
 @app.route('/nst',  methods=['POST', 'GET'])
 def nst():
     if request.method == 'POST':
-        content = request.json.get('content')
-        style = request.json.get('style')
+        # Uploading Image
+        file = request.files['file']
+        if file:
+            filename = secure_filename(file.filename)
+            exists = check_exists(filename)
+            if not exists:
+                print("UPLOAD FILENAME", filename)
+                file.save(os.path.join(app.config['CONTENT_FOLDER'], filename))
+            else:
+                print("Image Exists")
+
+        # Generating New Image
+        data = json.loads(request.form.get('data'))
+        content = data["content"]
+        style = data["style"]
         data = {}
         filename = content + '-' + style + '.jpg'
 
