@@ -53,17 +53,23 @@ def uploaded_file(filename):
 def nst():
     if request.method == 'POST':
         # Uploading Image
+        print("Grabbing file from request")
+        uploaded = False
         file = request.files['file']
         if file:
+            print("Checking if the file exists...")
             filename = secure_filename(file.filename)
             exists = check_exists(filename)
             if not exists:
                 print("UPLOAD FILENAME", filename)
                 file.save(os.path.join(app.config['CONTENT_FOLDER'], filename))
+                uploaded = True
+                os.listdir(app.config['CONTENT_FOLDER'])
             else:
                 print("Image Exists")
 
         # Generating New Image
+        print("Grabbing data from request")
         data = json.loads(request.form.get('data'))
         content = data["content"]
         style = data["style"]
@@ -74,11 +80,15 @@ def nst():
             data['path'], image = NST.nst_csv(content, style)
             data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
             print(data)
+            if uploaded:
+                delete_camera_image(content)
             return jsonify(data)
         else:
             data['path'] = app.config['UPLOAD_FOLDER'] + '{}-{}.jpg'.format(content, style)
             data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
             print(data)
+            if uploaded:
+                delete_camera_image(content)
             return jsonify(data)
 
     elif request.method == 'GET':
@@ -120,6 +130,14 @@ def convert_to_image():
     raw_bytes.seek(0)
     img_base64 = base64.b64encode(raw_bytes.read())
     return jsonify({'status': str(img_base64)})
+
+
+def delete_camera_image(content):
+    if content == 'camera_image':
+        os.remove((os.path.join(app.config['CONTENT_FOLDER'], content + '.jpg')))
+        print('Uploaded File Deleted')
+    else:
+        print("Uploaded File NOT Deleted")
 
 
 if __name__ == '__main__':

@@ -7,43 +7,48 @@ import PIL.Image
 import csv
 from datetime import datetime
 
-start = datetime.now()
-mpl.rcParams['figure.figsize'] = (10, 10)
-mpl.rcParams['axes.grid'] = False
+global start, root_dir, style_predict_path, style_transform_path, generated_dir, content_paths, style_paths
 
 
-'''
-Defining Model and Image Paths
-'''
-print("Finding images and model roots...")
-# root_dir = 'C:/Users/micha/Documents/PycharmProjects/NST_Lite/'
-root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
+def initialize():
+    global start, root_dir, style_predict_path, style_transform_path, generated_dir, content_paths, style_paths
+    start = datetime.now()
+    mpl.rcParams['figure.figsize'] = (10, 10)
+    mpl.rcParams['axes.grid'] = False
 
-# Defining Model DIR
-style_predict_path = root_dir + '/models/inceptionv3_fp16_predict.tflite'
-style_transform_path = root_dir + '/models/inceptionv3_fp16_transfer.tflite'
 
-# Iterates through all content and style images and adding to dict
-content_dir = root_dir + '/images/content/'
-style_dir = root_dir + '/images/styles/'
-generated_dir = root_dir + '/images/generated/'
+    '''
+    Defining Model and Image Paths
+    '''
+    print("Finding images and model roots...")
+    # root_dir = 'C:/Users/micha/Documents/PycharmProjects/NST_Lite/'
+    root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
 
-content_paths = {}
-style_paths = {}
+    # Defining Model DIR
+    style_predict_path = root_dir + '/models/inceptionv3_fp16_predict.tflite'
+    style_transform_path = root_dir + '/models/inceptionv3_fp16_transfer.tflite'
 
-for content_name in os.listdir(content_dir):
-    if content_name.endswith(".jpg"):
-        content_paths[content_name[:-4]] = content_dir + content_name
-    else:
-        continue
+    # Iterates through all content and style images and adding to dict
+    content_dir = root_dir + '/images/content/'
+    style_dir = root_dir + '/images/styles/'
+    generated_dir = root_dir + '/images/generated/'
 
-for content_name in os.listdir(style_dir):
-    if content_name.endswith(".jpg") or content_name.endswith(".png"):
-        style_paths[content_name[:-4]] = style_dir + content_name
-    else:
-        continue
+    content_paths = {}
+    style_paths = {}
 
-print(style_paths)
+    for content_name in os.listdir(content_dir):
+        if content_name.endswith(".jpg"):
+            content_paths[content_name[:-4]] = content_dir + content_name
+        else:
+            continue
+
+    for content_name in os.listdir(style_dir):
+        if content_name.endswith(".jpg") or content_name.endswith(".png"):
+            style_paths[content_name[:-4]] = style_dir + content_name
+        else:
+            continue
+
+    print(style_paths)
 
 
 def read_csv(file):
@@ -238,6 +243,8 @@ def nst_all():
 
 # Just use style and content in the csv file
 def nst_csv(content, style):
+    initialize()
+    print(content_paths)
     gen_path, image = generate(content=content, style=style, csv=True, blended=False)
     print("Finished Process In ", datetime.now() - start)
     return gen_path, image
