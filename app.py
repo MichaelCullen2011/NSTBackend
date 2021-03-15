@@ -6,7 +6,14 @@ import base64
 import json
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
+import threading
 import nst_lite as NST
+
+data_lock = threading.Lock()
+delete_thread = threading.Thread()
+# Pooling Time
+pool_time = 2
+# pool_time = 300     # 5 minutes
 
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
 UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
@@ -26,32 +33,18 @@ def home():
     return 'Hello'
 
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if request.method == 'POST':
-        file = request.files['file']
-        if file:
-            filename = secure_filename(file.filename)
-            exists = check_exists(filename)
-            if not exists:
-                print("UPLOAD FILENAME", filename)
-                file.save(os.path.join(app.config['CONTENT_FOLDER'], filename))
-                return "SAVED"
-            else:
-                print("Image Exists")
-                return "EXISTS"
-
-
 @app.route('/uploaded/<filename>', methods=['POST', 'GET'])
 def uploaded_file(filename):
     if request.method == 'GET':
         os.listdir(app.config['UPLOAD_FOLDER'])
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        network_image = send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        return network_image
 
 
 @app.route('/nst',  methods=['POST', 'GET'])
 def nst():
     if request.method == 'POST':
+        delete_files()
         # Uploading Image
         print("Grabbing file from request")
         uploaded = False
@@ -138,6 +131,17 @@ def delete_camera_image(content):
         print('Uploaded File Deleted')
     else:
         print("Uploaded File NOT Deleted")
+
+
+def delete_files():
+    print("Deleting generated files")
+    for file in os.listdir(app.config['UPLOAD_FOLDER']):
+        print(file)
+        if file == 'Dog1-Kandinsky.jpg':
+            pass
+        else:
+            os.remove(app.config['UPLOAD_FOLDER'] + file)
+            print("Deleted: ", file)
 
 
 if __name__ == '__main__':
