@@ -4,16 +4,9 @@ import numpy as np
 import io
 import base64
 import json
-from flask import Flask, flash, request, redirect, url_for, send_from_directory, jsonify
+from flask import Flask, request, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
-import threading
 import nst_lite as NST
-
-data_lock = threading.Lock()
-delete_thread = threading.Thread()
-# Pooling Time
-pool_time = 2
-# pool_time = 300     # 5 minutes
 
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
 UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
@@ -36,6 +29,7 @@ def home():
 @app.route('/uploaded/<filename>', methods=['POST', 'GET'])
 def uploaded_file(filename):
     if request.method == 'GET':
+        print("Displaying Generated File {}...".format(filename))
         os.listdir(app.config['UPLOAD_FOLDER'])
         network_image = send_from_directory(app.config['UPLOAD_FOLDER'], filename)
         return network_image
@@ -44,25 +38,21 @@ def uploaded_file(filename):
 @app.route('/nst',  methods=['POST', 'GET'])
 def nst():
     if request.method == 'POST':
+        print("Request Received...")
         delete_files()
         # Uploading Image
-        print("Grabbing file from request")
         uploaded = False
         file = request.files['file']
         if file:
-            print("Checking if the file exists...")
             filename = secure_filename(file.filename)
             exists = check_exists(filename)
             if not exists:
-                print("UPLOAD FILENAME", filename)
                 file.save(os.path.join(app.config['CONTENT_FOLDER'], filename))
                 uploaded = True
                 os.listdir(app.config['CONTENT_FOLDER'])
-            else:
-                print("Image Exists")
 
         # Generating New Image
-        print("Grabbing data from request")
+        print("Grabbing data from request...")
         data = json.loads(request.form.get('data'))
         content = data["content"]
         style = data["style"]
@@ -70,7 +60,7 @@ def nst():
         filename = content + '-' + style + '.jpg'
 
         if not check_generated(filename):
-            data['path'], image = NST.nst_csv(content, style)
+            data['path'], image = NST.nst(content, style)
             data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
             print(data)
             if uploaded:
@@ -95,22 +85,24 @@ def nst():
 
 
 def check_generated(filename):
-    print("CHECK GENERATED", filename)
+    print("Checking if {} has been generated already...".format(filename))
     for item in os.listdir(app.config['UPLOAD_FOLDER']):
         if item == filename:
+            print("Generated!")
             return True
     else:
+        print("Not Generated!")
         return False
 
 
 def check_exists(filename):
-    print("CHECK EXISTS ", filename)
+    print("Checking if {} exists in content folder...".format(filename))
     for item in os.listdir(app.config['CONTENT_FOLDER']):
         if item == filename:
-            print("EXISTS")
+            print("Exists!")
             return True
     else:
-        print("DOESNT EXIST")
+        print("Does Not Exist!")
         return False
 
 
@@ -128,13 +120,13 @@ def convert_to_image():
 def delete_camera_image(content):
     if content == 'camera_image':
         os.remove((os.path.join(app.config['CONTENT_FOLDER'], content + '.jpg')))
-        print('Uploaded File Deleted')
+        print('Uploaded Camera File Deleted')
     else:
-        print("Uploaded File NOT Deleted")
+        print("Uploaded File NOT Camera File")
 
 
 def delete_files():
-    print("Deleting generated files")
+    print("Deleting generated files...")
     for file in os.listdir(app.config['UPLOAD_FOLDER']):
         print(file)
         if file == 'Dog1-Kandinsky.jpg':

@@ -16,12 +16,10 @@ def initialize():
     mpl.rcParams['figure.figsize'] = (10, 10)
     mpl.rcParams['axes.grid'] = False
 
-
     '''
     Defining Model and Image Paths
     '''
     print("Finding images and model roots...")
-    # root_dir = 'C:/Users/micha/Documents/PycharmProjects/NST_Lite/'
     root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
 
     # Defining Model DIR
@@ -47,8 +45,6 @@ def initialize():
             style_paths[content_name[:-4]] = style_dir + content_name
         else:
             continue
-
-    print(style_paths)
 
 
 def read_csv(file):
@@ -196,13 +192,7 @@ def save_results(final_image, content_to_use, style_to_use, blended=False):
         tensor_to_image(final_image).close()
 
 
-def generate(content, style, csv=False, blended=False):
-    # Chooses an image from our content and style dict
-    if csv:
-        content_to_use, style_to_use = read_csv('images_to_use.txt')
-    else:
-        content_to_use, style_to_use = content, style
-
+def generate(content, style, blended=False):
     content_to_use = content
     style_to_use = style
     print("Transferring Style: ", style_to_use, "to content: ", content_to_use)
@@ -234,18 +224,10 @@ def generate(content, style, csv=False, blended=False):
     return saved_path, stylized_image
 
 
-# Iterates through all style and content images, generating transferred styles for all
-def nst_all():
-    for style in style_paths.keys():
-        for content in content_paths.keys():
-            generate(content, style, csv=False, blended=True)
-
-
 # Just use style and content in the csv file
-def nst_csv(content, style):
+def nst(content, style):
     initialize()
-    print(content_paths)
-    gen_path, image = generate(content=content, style=style, csv=True, blended=False)
+    gen_path, image = generate(content=content, style=style, blended=False)
     print("Finished Process In ", datetime.now() - start)
     return gen_path, image
 
