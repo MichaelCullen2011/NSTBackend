@@ -48,6 +48,7 @@ def nst():
             exists = check_exists(filename)
             if not exists:
                 file.save(os.path.join(app.config['CONTENT_FOLDER'], filename))
+                rotate_image(os.path.join(app.config['CONTENT_FOLDER'], filename))
                 uploaded = True
                 os.listdir(app.config['CONTENT_FOLDER'])
 
@@ -134,6 +135,13 @@ def delete_files():
         else:
             os.remove(app.config['UPLOAD_FOLDER'] + file)
             print("Deleted: ", file)
+
+
+def rotate_image(image_path):
+    print("Orienting Camera Image...")
+    unrotated = Image.open(image_path)
+    rotated = unrotated.rotate(270)
+    rotated.save(image_path)
 
 
 if __name__ == '__main__':
