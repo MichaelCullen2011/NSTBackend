@@ -17,7 +17,8 @@ Defining Model and Image Paths
 '''
 print("Finding images and model roots...")
 # root_dir = 'C:/Users/micha/Documents/PycharmProjects/NST_Lite/'
-root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
+# root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
+root_dir = ''
 
 # Defining Model DIR
 style_predict_path = root_dir + '/models/inceptionv3_fp16_predict.tflite'
