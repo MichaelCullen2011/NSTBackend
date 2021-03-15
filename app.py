@@ -8,8 +8,7 @@ from flask import Flask, flash, request, redirect, url_for, send_from_directory,
 from werkzeug.utils import secure_filename
 import nst_lite as NST
 
-# root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
-root_dir = ''
+root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
 UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
 CONTENT_FOLDER = root_dir + '/images/content/'
 ALLOWED_EXTENSIONS = {'jpg'}
