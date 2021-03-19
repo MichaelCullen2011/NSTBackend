@@ -6,10 +6,12 @@ import base64
 import json
 from flask import Flask, request, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
-import nst_lite as NST
+import nst_lite
+import nst_detail
 
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
 UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
+DETAIL_FOLDER = root_dir + '/images/generated/detail/'
 CONTENT_FOLDER = root_dir + '/images/content/'
 ALLOWED_EXTENSIONS = {'jpg'}
 
@@ -43,6 +45,17 @@ def nst():
         # Uploading Image
         uploaded = False
         file = request.files['file']
+        data = json.loads(request.form.get('data'))
+        bool = data["lite"]
+        if bool == 'true':
+            lite = True
+        elif bool == 'false':
+            lite = False
+        if lite:
+            app.config['UPLOAD_FOLDER'] = DETAIL_FOLDER
+        elif not lite:
+            app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
         if file:
             filename = secure_filename(file.filename)
             exists = check_exists(filename)
@@ -54,15 +67,18 @@ def nst():
 
         # Generating New Image
         print("Grabbing data from request...")
-        data = json.loads(request.form.get('data'))
         content = data["content"]
         style = data["style"]
         data = {}
         filename = content + '-' + style + '.jpg'
 
         if not check_generated(filename):
-            data['path'], image = NST.nst(content, style)
-            data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
+            if lite:
+                data['path'], image = nst_lite.run(content, style)
+                data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
+            elif not lite:
+                data['path'], image = nst_detail.run(content, style)
+                data['url'] = request.host_url + '/uploaded/' + '{}-{}.jpg'.format(content, style)
             print(data)
             if uploaded:
                 delete_camera_image(content)

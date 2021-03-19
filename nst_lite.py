@@ -225,7 +225,7 @@ def generate(content, style, blended=False):
 
 
 # Just use style and content in the csv file
-def nst(content, style):
+def run(content, style):
     initialize()
     gen_path, image = generate(content=content, style=style, blended=False)
     print("Finished Process In ", datetime.now() - start)
