@@ -105,7 +105,7 @@ def nst():
 
 def check_generated(filename):
     print("Checking if {} has been generated already...".format(filename))
-    for item in os.listdir(app.config['LITE_FOLDER']):
+    for item in os.listdir(app.config['UPLOAD_FOLDER']):
         print(item, filename)
         if item == filename:
             print("Generated!")
