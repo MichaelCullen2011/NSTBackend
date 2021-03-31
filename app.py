@@ -17,7 +17,8 @@ ALLOWED_EXTENSIONS = {'jpg'}
 
 app = Flask(__name__)
 # app.config['SECRET_KEY'] = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = DETAIL_FOLDER
+app.config['LITE_FOLDER'] = UPLOAD_FOLDER
 app.config['CONTENT_FOLDER'] = CONTENT_FOLDER
 app.config['FLUTTER_JSON'] = {}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024     # 16 MB file size limit
@@ -46,15 +47,16 @@ def nst():
         uploaded = False
         file = request.files['file']
         data = json.loads(request.form.get('data'))
-        bool = data["lite"]
-        if bool == 'true':
+        lite_vers = data["lite"]
+        if lite_vers == 'true':
             lite = True
-        elif bool == 'false':
-            lite = False
-        if lite:
-            app.config['UPLOAD_FOLDER'] = DETAIL_FOLDER
-        elif not lite:
             app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+        elif lite_vers == 'false':
+            lite = True     # CURRENTLY THE DETAILED VERSION TAKES TOO LONG TO GENERATE
+            app.config['UPLOAD_FOLDER'] = DETAIL_FOLDER
+        else:
+            lite = True
+            app.config['UPLOAD_FOLDER'] = DETAIL_FOLDER
 
         if file:
             filename = secure_filename(file.filename)
@@ -103,7 +105,8 @@ def nst():
 
 def check_generated(filename):
     print("Checking if {} has been generated already...".format(filename))
-    for item in os.listdir(app.config['UPLOAD_FOLDER']):
+    for item in os.listdir(app.config['LITE_FOLDER']):
+        print(item, filename)
         if item == filename:
             print("Generated!")
             return True
@@ -144,12 +147,12 @@ def delete_camera_image(content):
 
 def delete_files():
     print("Deleting generated files...")
-    for file in os.listdir(app.config['UPLOAD_FOLDER']):
+    for file in os.listdir(app.config['LITE_FOLDER']):
         print(file)
         if file == 'Dog1-Kandinsky.jpg':
             pass
         else:
-            os.remove(app.config['UPLOAD_FOLDER'] + file)
+            os.remove(app.config['LITE_FOLDER'] + file)
             print("Deleted: ", file)
 
 
