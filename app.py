@@ -10,7 +10,7 @@ import nst_lite
 import nst_detail
 
 root_dir = os.path.dirname(os.path.abspath(__file__))   # os.getcwd()
-UPLOAD_FOLDER = root_dir + '/images/generated/lite/'
+LITE_FOLDER = root_dir + '/images/generated/lite/'
 DETAIL_FOLDER = root_dir + '/images/generated/detail/'
 CONTENT_FOLDER = root_dir + '/images/content/'
 ALLOWED_EXTENSIONS = {'jpg'}
@@ -18,7 +18,7 @@ ALLOWED_EXTENSIONS = {'jpg'}
 app = Flask(__name__)
 # app.config['SECRET_KEY'] = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
 app.config['UPLOAD_FOLDER'] = DETAIL_FOLDER
-app.config['LITE_FOLDER'] = UPLOAD_FOLDER
+app.config['LITE_FOLDER'] = LITE_FOLDER
 app.config['CONTENT_FOLDER'] = CONTENT_FOLDER
 app.config['FLUTTER_JSON'] = {}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024     # 16 MB file size limit
@@ -29,7 +29,7 @@ def home():
     return 'Hello'
 
 
-@app.route('/uploaded/<filename>', methods=['POST', 'GET'])
+@app.route('/uploaded/<filename>', methods=['GET'])
 def uploaded_file(filename):
     if request.method == 'GET':
         print("Displaying Generated File {}...".format(filename))
@@ -42,7 +42,7 @@ def uploaded_file(filename):
 def nst():
     if request.method == 'POST':
         print("Request Received...")
-        delete_files()
+        # delete_files()
         # Uploading Image
         uploaded = False
         file = request.files['file']
@@ -50,7 +50,7 @@ def nst():
         lite_vers = data["lite"]
         if lite_vers == 'true':
             lite = True
-            app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+            app.config['UPLOAD_FOLDER'] = LITE_FOLDER
         elif lite_vers == 'false':
             lite = True     # CURRENTLY THE DETAILED VERSION TAKES TOO LONG TO GENERATE
             app.config['UPLOAD_FOLDER'] = DETAIL_FOLDER
@@ -164,4 +164,5 @@ def rotate_image(image_path):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    # app.run(host='0.0.0.0')
+    app.run()

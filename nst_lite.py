@@ -188,7 +188,7 @@ def save_results(final_image, content_to_use, style_to_use, blended=False):
         tensor_to_image(final_image).close()
     else:
         file_name = '{}-{}.jpg'.format(content_to_use, style_to_use)
-        tensor_to_image(final_image).save(generated_dir + '/lite/' + file_name)
+        tensor_to_image(final_image).save(generated_dir + '/detail/' + file_name)
         tensor_to_image(final_image).close()
 
 
@@ -220,7 +220,8 @@ def generate(content, style, blended=False):
         save_results(stylized_image, content_to_use, style_to_use)
 
     stylized_image = tensor_to_image(stylized_image)
-    saved_path = generated_dir + '/lite/' + '{}-{}.jpg'.format(content_to_use, style_to_use)
+    # temporarily saves to details folder for now
+    saved_path = generated_dir + '/detail/' + '{}-{}.jpg'.format(content_to_use, style_to_use)
     return saved_path, stylized_image
 
 
