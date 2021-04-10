@@ -21,7 +21,7 @@ The NST program uses Tensorflow and Keras to train a model in the style of a spe
 ```
 python nst_lite.py
 ```
-![alt text](https://github.com/MichaelCullen2011/NSTBackend/blob/main/screenshot.png?raw=true)
+![alt text](https://github.com/MichaelCullen2011/NSTBackend/blob/main/nst_example.png?raw=true)
 
 ### The Flask program
 This is largely run through app.py and handles POST and GET requests, collecting the relevant information, and performing the transform on the necessary pieces.
