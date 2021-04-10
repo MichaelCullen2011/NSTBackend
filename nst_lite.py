@@ -228,9 +228,11 @@ def generate(content, style, blended=False):
 # Just use style and content in the csv file
 def run(content, style):
     initialize()
+    start = datetime.now()
     gen_path, image = generate(content=content, style=style, blended=False)
     print("Finished Process In ", datetime.now() - start)
     return gen_path, image
 
 
-
+if __name__=='__main__':
+    run('Dog1', 'Kandinsky')
