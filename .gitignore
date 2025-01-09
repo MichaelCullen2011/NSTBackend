@@ -1,3 +1,7 @@
-/venv/
-/.venv/
-/images/generated/backup/
+.venv/
+.vscode/
+.idea/
+*__pycache__*
+
+resources/
+src/images/generated/backup/
